@@ -1,0 +1,116 @@
+#!/bin/python3
+
+import sys
+import math
+
+def main():
+    if (error_handling(len(sys.argv)) == True):
+        intersection(sys.argv, len(sys.argv))
+    else:
+        exit (84)
+
+def error_handling(argc):
+    if (argc > 1):
+        if (sys.argv[1] == "-h"):
+            print_help()
+            exit (0)
+    if (argc < 9):
+        print (f"missing arguments !")
+        return (False)
+    elif (argc > 9):
+        print ("too much arguments !")
+        return (False)
+    else:
+        return (True)
+
+def print_help():
+    print ("USAGE\n    ./104intersection opt xp yp zp xv yv zy p\n")
+    print ("DESCRIPTION:")
+    print ("    opt\t\t\tsurface option: 1 for a sphere, 2 for a cylinder, 3 for a cone")
+    print ("    (xp, yp, zp)\tcoordinate of a point by which the light ray passes trought")
+    print ("    (xv, yv, zv)\tcoordinate of a vector parallel to the light ray")
+    print ("    p\t\t\tparameter: radius of the sphere, radius of the cylinder, or")
+    print ("\t\t\tangle formedby by the cone and the 2-axis")
+
+#   Sphere => x²+y²+z²=r²
+#   Cylindre => x²+y²=r²
+#   Cone => x²+y² = z² tan²(angle)
+#   X = px + vx * t
+#   Y = py + vy * t
+#   Z = pz + vz * t
+
+def intersection(argv, argc):
+    opt = get_opt(argv[1], argv[8])
+    get_info(argv)
+    get_intersection(opt, argv)
+
+def get_intersection(opt, argv):
+    if (opt == '1'):
+        a = math.pow(int(argv[5]), 2) + math.pow(int(argv[6]), 2) + math.pow(int(argv[7]), 2)
+        b = (2 * int(argv[2]) * int(argv[5])) + (2 * int(argv[3]) * int(argv[6])) + (2 * int(argv[4]) * int(argv[7]))
+        c = math.pow(int(argv[2]), 2) + math.pow(int(argv[3]), 2) + math.pow(int(argv[4]), 2) - math.pow(int(argv[8]), 2)
+        calc_delta(a, b, c, argv)
+    elif (opt == '2'):
+        a = math.pow(int(argv[5]), 2) + math.pow(int(argv[6]), 2)
+        b = (2 * int(argv[2]) * int(argv[5])) + (2 * int(argv[3]) * int(argv[6]))
+        c = math.pow(int(argv[2]), 2) + math.pow(int(argv[3]), 2) - math.pow(int(argv[8]), 2)
+        calc_delta(a, b, c, argv)
+    elif (opt == '3'):
+        a = int(argv[5]) * int(argv[5]) + int(argv[6]) * int(argv[6]) - ((int(argv[7]) * int(argv[7])) / (math.tan(int(argv[8])) * math.tan(int(argv[8]))))
+        b = (2 * int(argv[2]) * int(argv[5])) + (2 * int(argv[3]) * int(argv[6])) - ((2 * int(argv[4]) * int(argv[7])) / (math.tan(int(argv[8])) * math.tan(int(argv[8]))))
+        c = int(argv[2]) * int(argv[2]) + int(argv[3]) * int(argv[3]) - ((int(argv[4]) * int(argv[4])) / (math.tan(int(argv[8])) * math.tan(int(argv[8]))))
+        calc_delta(a, b, c, argv)
+    else:
+        print ("ERROR")
+
+def calc_delta(x, y, z, argv):
+    delta = (y*y)-(4*x*z)
+    if (delta < 0):
+        print ("No intersection point.")
+        exit (0)
+    elif (2 * x == 0):
+            exit (84)
+    elif (delta == 0):
+        print ("1 intersection point:")
+        x1 = ((-y) / (2 * x))
+        X = int(argv[2]) + x1 * int(argv[5])
+        Y = int(argv[3]) + x1 * int(argv[6])
+        Z = int(argv[4]) + x1 * int(argv[7])
+        print ("(%.3f," % X,"%.3f," % Y,"%.3f)" % Z)
+        exit (0)
+    elif (delta > 0):
+        print ("2 intersection points:")
+        x1 = ((-y) - math.sqrt(delta) / (2 * x))
+        x2 = ((-y) + math.sqrt(delta) / (2 * x))
+        X1 = int(argv[2]) + x1 * int(argv[5])
+        Y1 = int(argv[3]) + x1 * int(argv[6])
+        Z1 = int(argv[4]) + x1 * int(argv[7])
+        X2 = int(argv[2]) + x2 * int(argv[5])
+        Y2 = int(argv[3]) + x2 * int(argv[6])
+        Z2 = int(argv[4]) + x2 * int(argv[7])
+        print ("(%.3f," % X2,"%.3f," % Y2,"%.3f)" % Z2)
+        print ("(%.3f," % X1,"%.3f," % Y1,"%.3f)" % Z1)
+        exit (0)
+
+def get_info(argv):
+    print ("Line passing through the point", end=' ')
+    print (f"({argv[2]}, {argv[3]}, {argv[4]})", end=' ')
+    print ("and parallel to the vector", end=' ')
+    print (f"({argv[5]}, {argv[6]}, {argv[7]})")
+
+def get_opt(opt, rad):
+    if (opt == '1'):
+        print (f"Sphere of radius {rad}")
+        return opt
+    elif (opt == '2'):
+        print (f"Cylinder of radius {rad}")
+        return opt
+    elif (opt == '3'):
+        print (f"Cone with a {rad} degree angle")
+        return opt
+    else:
+        print (f"Unknown element {opt}")
+        exit (84)
+    return (True)       
+
+main()
